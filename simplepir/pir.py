@@ -35,9 +35,7 @@ class SimplePIR:
         if s is None:
             s = self.gen_secret(self.n)
         
-        # Generate error with reduced scaling
         e = Tensor.normal((self.m,), mean=0., std=self.std_dev)
-        # Further reduce error scaling for better accuracy
         e = (e * (self.p // 8)).cast(dtypes.int64) % self.q
         print(f'e: {e.numpy()}')
         
@@ -74,11 +72,9 @@ class SimplePIR:
         hint_s = (hint @ s) % self.q
         diff = (answer - hint_s) % self.q
         
-        # Fine-tune noise margin for better accuracy
         noise_margin = self.p // 16
         raw = ((diff + (self.delta//2) + noise_margin) // self.delta).cast(dtypes.int64)
         
-        # Center around 0 with proper handling of negative values
         half_p = self.p // 2
         raw_np = raw.numpy()
         centered = raw_np.copy()
